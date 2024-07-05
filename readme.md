@@ -19,7 +19,6 @@ num_training = int(len(dataset) * 0.2)
 num_val = int(len(dataset) * 0.1)
 num_test = len(dataset) - (num_training + num_val)
 training_set, validation_set, test_set = random_split(dataset, [num_training, num_val, num_test])
-
 ```
 
 * 20% of the dataset are used to train
@@ -38,7 +37,15 @@ use custom parameters to run:
 python gnncl.py --seed 777 --dataset gossipcop --batch_size 64 --lr 0.01 --weight_decay 0.001 --nhid 128 --epochs 60 --feature content
 ```
 
+### GEM training
+
+Gradient Episodic Memory (GEM): GEM uses episodic memory to store a number of samples from previous tasks, and when learning a new task t, it does not allow the loss over those samples held in memory to increase compared to when the learning of task t − 1 is finished;
+
+
+
 ### EWC training
+
+Elastic Weight Consolidation (EWC): its loss function consists of a quadratic penalty term on the change of the parameters, in order to prevent drastic updates to those parameters that are important to the old tasks.
 
 - **Training the Initial Model on the PolitiFact Dataset:**
 
@@ -67,16 +74,30 @@ I created two files to let our datasets adjust to the model:
 * The purpose of the train_model. py file is to train a Graph Neural Network (GNN) model using the given dataset and save the trained model to the file.
 * The purpose of the predict_new_data.py file is to load the trained model and use it to predict new data.
 
-Use TF-IDF vectorizer to convert text data into feature vectors.
+Using the data from the gossipcop_v3-2-content_based_fake.json dataset for prediction
 
-```python
-def text_to_features(texts):
-vectorizer = TfidfVectorizer(max_features=10)  
-X = vectorizer.fit_transform(texts)
-return torch.tensor(X.toarray(), dtype=torch.float)
-```
+1. Load new data: Load text data containing the generated_text_glm4 field from the gossip op_v3-2-content_based_fake.json file.
 
-first run the train_model.py to get the model file.
+2. Convert to features: Use TF-IDF vectorizer to convert text data into feature vectors, ensuring consistent number of features (10).
+
+   Use TF-IDF vectorizer to convert text data into feature vectors.
+
+   ```python
+   def text_to_features(texts):
+   vectorizer = TfidfVectorizer(max_features=10)  
+   X = vectorizer.fit_transform(texts)
+   return torch.tensor(X.toarray(), dtype=torch.float)
+   ```
+
+3. Build adjacency matrix: Construct an identity matrix for each text as the adjacency matrix.
+
+4. Create data objects: Encapsulate features, adjacency matrix, and mask matrix into PyTorch Geometry data objects.
+
+5. Load trained model: Load the weights of the trained model (gnnmodel. pth).
+
+6. Make predictions: Use models to predict new data and print the prediction results
+
+first run the train_model.py to train and generate model.
 
 ```bash
 python train_model.py --dataset politifact --feature profile --epochs 60
