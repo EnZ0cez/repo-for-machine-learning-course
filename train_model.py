@@ -6,7 +6,7 @@ from torch.utils.data import random_split
 import torch_geometric.transforms as T
 from tqdm import tqdm
 from math import ceil
-from gnncl import Net  # 假设gnncl.py在同一目录下
+from gnncl import Net
 
 from utils.data_loader import FNNDataset, ToUndirected
 from utils.eval_helper import eval_deep

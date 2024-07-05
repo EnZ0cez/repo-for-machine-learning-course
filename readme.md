@@ -41,7 +41,29 @@ python gnncl.py --seed 777 --dataset gossipcop --batch_size 64 --lr 0.01 --weigh
 
 Gradient Episodic Memory (GEM): GEM uses episodic memory to store a number of samples from previous tasks, and when learning a new task t, it does not allow the loss over those samples held in memory to increase compared to when the learning of task t − 1 is finished;
 
+**Episodic Memory Storage**:
 
+- During the training of each new task, GEM stores a subset of samples from previous tasks in memory.
+- These samples ensure that the model can refer back to previous tasks during the training of new tasks, preventing the model from forgetting previously learned knowledge.
+
+**Computing Memory Output**:
+
+- For the samples stored in memory, the model computes and stores their outputs.
+- This step ensures that during the training of new tasks, these outputs can be accessed and compared.
+
+**GEM Training Step**:
+
+- In each training step, the loss for the current task is calculated.
+- Simultaneously, the loss for the memory samples is computed, ensuring that this loss does not increase.
+- The total loss (current task loss plus memory loss) is backpropagated to update the model parameters, ensuring that the performance on previous tasks is maintained while learning new tasks.
+
+- use default parameters to run:
+
+```bash
+python gem_training.py
+```
+
+The program will generate a file "output_gem.txt" to store the results.
 
 ### EWC training
 
@@ -65,7 +87,7 @@ Elastic Weight Consolidation (EWC): its loss function consists of a quadratic pe
 python ewc_training.py
 ```
 
-The program will generate a file "output.txt" to store the results.
+The program will generate a file "output_ewc.txt" to store the results.
 
 ### Use own dataset
 
@@ -74,9 +96,9 @@ I created two files to let our datasets adjust to the model:
 * The purpose of the train_model. py file is to train a Graph Neural Network (GNN) model using the given dataset and save the trained model to the file.
 * The purpose of the predict_new_data.py file is to load the trained model and use it to predict new data.
 
-Using the data from the gossipcop_v3-2-content_based_fake.json dataset for prediction
+Using the data from the gossipcop_v3-1_style_based_fake.json and gossipcop_v3-7_integration_based_legitimate_tn300.json datasets for  training, gossipcop_v3-5_style_based_legitimate.json dataset for prediction
 
-1. Load new data: Load text data containing the generated_text_glm4 field from the gossip op_v3-2-content_based_fake.json file.
+1. Load new data: Load text data containing the text and label field from the gossipcop_v3-1_style_based_fake.json, gossipcop_v3-7_integration_based_legitimate_tn300.json, gossipcop_v3-5_style_based_legitimate.json file.
 
 2. Convert to features: Use TF-IDF vectorizer to convert text data into feature vectors, ensuring consistent number of features (10).
 
